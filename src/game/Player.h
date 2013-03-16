@@ -2447,6 +2447,13 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool canSeeSpellClickOn(Creature const* creature) const;
 
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+		void SetArenaPointsSinceLastReset(uint32 ArenaPointsSinceLastReset) { m_ArenaPointsSinceLastReset = ArenaPointsSinceLastReset; }
+		uint32 GetArenaPointsSinceLastReset() { return m_ArenaPointsSinceLastReset; }
+		void UpdateArenaPointsSinceLastReset(uint32 ArenaPointsSinceLastReset) { m_ArenaPointsSinceLastReset += ArenaPointsSinceLastReset; }
+		void ResetArenaPointsSinceLastReset() { m_ArenaPointsSinceLastReset = 0; }
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+
         void SetPlayerbotAI(PlayerbotAI* ai) { m_playerbotAI = ai; }
         PlayerbotAI* GetPlayerbotAI() { return m_playerbotAI; }
         void SetPlayerbotMgr(PlayerbotMgr* mgr) { m_playerbotMgr = mgr; }
@@ -2801,6 +2808,11 @@ class MANGOS_DLL_SPEC Player : public Unit
         // LFG
         LFGPlayerState* m_LFGState;
         void _fillGearScoreData(Item* item, GearScoreMap* gearScore);
+
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+		uint32 m_ArenaPointsSinceLastReset;
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+
 };
 
 void AddItemsSetItem(Player*player,Item *item);

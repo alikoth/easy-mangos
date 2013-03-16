@@ -849,6 +849,10 @@ ChatCommand * ChatHandler::getCommandTable()
         { "quit",           SEC_CONSOLE,        true,  &ChatHandler::HandleQuitCommand,                "", NULL },
         { "mmap",           SEC_GAMEMASTER,     false, NULL,                                           "", mmapCommandTable },
 
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+		{ "resetarena",		SEC_ADMINISTRATOR,	false, &ChatHandler::HandleResetArenaCommand,		   "", NULL },
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 

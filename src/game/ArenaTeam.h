@@ -219,6 +219,10 @@ class ArenaTeam
 
         uint32 GetAverageMMR(Group *group) const;
 
+		/* Points d'arènes en fin de match - By MacWarrior */
+		void UpdateArenaPointsForeachMatchHelper(std::map<uint32, uint32>& PlayerPoints);
+		/* Points d'arènes en fin de match - By MacWarrior */
+
     protected:
 
         uint32 m_TeamId;

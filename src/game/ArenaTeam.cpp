@@ -1031,6 +1031,26 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& PlayerPoints)
     }
 }
 
+/* Points d'arènes en fin de match - By MacWarrior */
+void ArenaTeam::UpdateArenaPointsForeachMatchHelper(std::map<uint32, uint32>& PlayerPoints)
+{
+    for (MemberList::const_iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    {
+        uint32 points_to_add = GetPoints(itr->personal_rating);
+		if( itr->games_week == 0 )
+			points_to_add = 0;
+        std::map<uint32, uint32>::iterator plr_itr = PlayerPoints.find(itr->guid.GetCounter());
+        if (plr_itr != PlayerPoints.end())
+        {
+            if (plr_itr->second < points_to_add)
+                PlayerPoints[itr->guid.GetCounter()] = (uint32) ceil(points_to_add*0.3);
+        }
+        else
+            PlayerPoints[itr->guid.GetCounter()] = (uint32) ceil(points_to_add*0.3);
+    }
+}
+/* Points d'arènes en fin de match - By MacWarrior */
+
 void ArenaTeam::SaveToDB()
 {
     // save team and member stats to db

@@ -68,6 +68,10 @@
 #include "CharacterDatabaseCleaner.h"
 #include "LFGMgr.h"
 
+/* Limite de points d'arène quotidiens - By MacWarrior */
+#include "Language.h"
+/* Limite de points d'arène quotidiens - By MacWarrior */
+
 INSTANTIATE_SINGLETON_1( World );
 
 volatile bool World::m_stopEvent = false;
@@ -764,6 +768,17 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_UINT32_ARENA_MAX_RATING_DIFFERENCE,               "Arena.MaxRatingDifference", 150);
     setConfig(CONFIG_UINT32_ARENA_RATING_DISCARD_TIMER,                "Arena.RatingDiscardTimer", 10 * MINUTE * IN_MILLISECONDS);
     setConfig(CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_POINTS,                "Arena.AutoDistributePoints", false);
+
+	/* Points d'arènes en fin de match - By MacWarrior */
+	setConfig(CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_ENDMATCH,              "Arena.AutoDistributePointsAtMatchEnd", true);
+	if( getConfig(CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_POINTS) && getConfig(CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_ENDMATCH) )
+		setConfig(CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_POINTS, false);
+	/* Points d'arènes en fin de match - By MacWarrior */
+
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+	setConfig(CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY,				   "Arena.MaxArenaPointsPerDay", 5000);
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+
     setConfig(CONFIG_UINT32_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,       "Arena.AutoDistributeInterval", 7);
     setConfig(CONFIG_BOOL_ARENA_QUEUE_ANNOUNCER_JOIN,                  "Arena.QueueAnnouncer.Join", false);
     setConfig(CONFIG_BOOL_ARENA_QUEUE_ANNOUNCER_EXIT,                  "Arena.QueueAnnouncer.Exit", false);
@@ -1355,8 +1370,9 @@ void World::SetInitialWorldSettings()
     // for AhBot
     m_timers[WUPDATE_AHBOT].SetInterval(20*IN_MILLISECONDS); // every 20 sec
 
-    // for AhBot
-    m_timers[WUPDATE_AHBOT].SetInterval(20*IN_MILLISECONDS); // every 20 sec
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+	m_timers[WUPDATE_ARENAPOINTS_LIMIT].SetInterval(MINUTE * IN_MILLISECONDS);
+	/* Limite de points d'arène quotidiens - By MacWarrior */
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -1609,6 +1625,15 @@ void World::Update(uint32 diff)
 
     //cleanup unused GridMap objects as well as VMaps
     sTerrainMgr.Update(diff);
+
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+	if (m_timers[WUPDATE_ARENAPOINTS_LIMIT].Passed())
+	{
+		UpdateLimiteArenaPoints();
+		m_timers[WUPDATE_ARENAPOINTS_LIMIT].Reset();
+	}
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+
 }
 
 /// Send a packet to all players (except self if mentioned)
@@ -2457,3 +2482,34 @@ bool World::configNoReload(bool reload, eConfigBoolValues index, char const* fie
 
     return false;
 }
+
+/* Limite de points d'arène quotidiens - By MacWarrior */
+void World::UpdateLimiteArenaPoints()
+{
+	QueryResult* result = CharacterDatabase.Query("SELECT LastArenaPointsReset FROM saved_variables");
+	uint64 t = uint64(time_t(time(NULL)));
+	if(!result)
+	{
+		CharacterDatabase.PExecute("UPDATE saved_variables SET LastArenaPointsReset = '" UI64FMTD "'", t);
+	} else {
+		uint64 time = (*result)[0].GetUInt64();
+		if( time <= t - (DAY * IN_MILLISECONDS) )
+			ResetLimiteArenaPoints();
+	}
+	delete result;
+}
+
+void World::ResetLimiteArenaPoints()
+{
+	CharacterDatabase.PExecute("UPDATE saved_variables SET LastArenaPointsReset = '" UI64FMTD "'", uint64(time_t(time(NULL))));
+	CharacterDatabase.Execute("UPDATE characters SET ArenaPointsSinceLastReset = 0");
+	for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+	{
+		if(!itr->second || !itr->second->GetPlayer())
+			continue;
+
+		itr->second->GetPlayer()->ResetArenaPointsSinceLastReset();
+	}
+	sWorld.SendWorldText(LANG_ARENA_POINTS_LIMIT_RESET);
+}
+/* Limite de points d'arène quotidiens - By MacWarrior */

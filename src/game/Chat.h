@@ -626,6 +626,10 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleMmap(char* args);
         bool HandleMmapTestArea(char* args);
 
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+		bool HandleResetArenaCommand(char* args);
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+
         //! Development Commands
         bool HandleSaveAllCommand(char* args);
 

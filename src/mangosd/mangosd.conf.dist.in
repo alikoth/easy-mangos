@@ -1489,6 +1489,15 @@ BattleGround.Random.ResetHour = 6
 #        Default: 0 (disable) (recommended): use gm command or sql query to distribute the points
 #                 1 (enable)  arena points are distributed automatically
 #
+#	 Arena.AutoDistributePointsAtMatchEnd
+#		 Si cette option est activee, les joueurs recoivent leurs points d'arene en fin de match
+#		 Default: 1 - Active
+#				  0 - Desactive
+#
+#	 Arena.MaxArenaPointsPerDay
+#		 Nombre de points d'arene pouvant etre gagne par jour pour chaque personnage
+#		 Default: 5000
+#
 #    Arena.AutoDistributeInterval
 #        How often should the distribution take place
 #        If automatic distribution is enabled in days
@@ -1535,6 +1544,8 @@ BattleGround.Random.ResetHour = 6
 Arena.MaxRatingDifference = 150
 Arena.RatingDiscardTimer = 600000
 Arena.AutoDistributePoints = 0
+Arena.AutoDistributePointsAtMatchEnd = 1
+Arena.MaxArenaPointsPerDay = 5000
 Arena.AutoDistributeInterval = 7
 Arena.QueueAnnouncer.Join = 0
 Arena.QueueAnnouncer.Exit = 0

@@ -35,6 +35,10 @@
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 
+/* Limite de points d'arène quotidiens - By MacWarrior */
+#include "Chat.h"
+/* Limite de points d'arène quotidiens - By MacWarrior */
+
 namespace MaNGOS
 {
     class BattleGroundChatBuilder
@@ -914,6 +918,58 @@ void BattleGround::EndBattleGround(Team winner)
         plr->GetSession()->SendPacket(&data);
         plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
+
+	/* Points d'arènes en fin de match - By MacWarrior */
+	if( isArena() && isRated() && winner_arena_team && loser_arena_team && sWorld.getConfig(CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_ENDMATCH) )
+	{
+		std::map<uint32, uint32> PlayerPoints;
+		winner_arena_team->UpdateArenaPointsForeachMatchHelper(PlayerPoints);
+		loser_arena_team->UpdateArenaPointsForeachMatchHelper(PlayerPoints);
+
+		QueryResult* result;
+		uint32 ArenaPointsSinceLastReset, Points;
+		for (std::map<uint32, uint32>::iterator plr_itr = PlayerPoints.begin(); plr_itr != PlayerPoints.end(); ++plr_itr)
+		{
+			if( Player* pl = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, plr_itr->first)) )
+			{
+				ArenaPointsSinceLastReset = pl->GetArenaPointsSinceLastReset();
+
+				if( ArenaPointsSinceLastReset >= sWorld.getConfig(CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY) )
+				{
+					ChatHandler(pl).SendSysMessage(LANG_ARENA_POINTS_LIMIT);
+					continue;
+				}
+				
+				if( plr_itr->second + ArenaPointsSinceLastReset >= sWorld.getConfig(CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY) )
+				{
+					ChatHandler(pl).SendSysMessage(LANG_ARENA_POINTS_LIMIT2);
+					Points = sWorld.getConfig(CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY) - ArenaPointsSinceLastReset;
+				} else
+					Points = plr_itr->second;
+
+				pl->ModifyArenaPoints(Points);
+				pl->UpdateArenaPointsSinceLastReset(Points);
+			} else {
+				result = CharacterDatabase.PQuery("SELECT ArenaPointsSinceLastReset FROM characters WHERE guid = '%u'", plr_itr->first);
+				if(!result)
+					continue;
+				ArenaPointsSinceLastReset = (*result)[0].GetUInt32();
+
+				if( plr_itr->second + ArenaPointsSinceLastReset > sWorld.getConfig(CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY) )
+					Points = sWorld.getConfig(CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY) - ArenaPointsSinceLastReset;
+				else
+					Points = plr_itr->second;
+			}
+
+			CharacterDatabase.PExecute("UPDATE characters SET ArenaPointsSinceLastReset = ArenaPointsSinceLastReset + '%u' WHERE guid = '%u'", Points, plr_itr->first);
+			CharacterDatabase.PExecute("UPDATE characters SET arenaPoints = arenaPoints + '%u' WHERE guid = '%u'", Points, plr_itr->first);
+		}
+		PlayerPoints.clear();
+
+		winner_arena_team->FinishWeek();
+		loser_arena_team->FinishWeek();
+	}
+	/* Points d'arènes en fin de match - By MacWarrior */
 
     if (isArena() && isRated() && winner_arena_team && loser_arena_team)
     {

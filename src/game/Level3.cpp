@@ -7540,3 +7540,11 @@ bool ChatHandler::HandleMmapTestArea(char* args)
 
     return true;
 }
+
+/* Limite de points d'arène quotidiens - By MacWarrior */
+bool ChatHandler::HandleResetArenaCommand(char* args)
+{
+	sWorld.ResetLimiteArenaPoints();
+	return true;
+}
+/* Limite de points d'arène quotidiens - By MacWarrior */

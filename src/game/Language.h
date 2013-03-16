@@ -991,6 +991,10 @@ enum MangosStrings
     LANG_OPVP_EP_LOOSE_PWT_H            = 10017,
     LANG_OPVP_EP_LOOSE_PWT_A            = 10018,
 
+	LANG_ARENA_POINTS_LIMIT_RESET		= 10019, // "La limite de points d'arène vient d'être réinitialisé."
+	LANG_ARENA_POINTS_LIMIT				= 10020, // "Vous avez déjà atteint la limite de points d'arène pour aujourd'hui !"
+	LANG_ARENA_POINTS_LIMIT2			= 10021, // "Vous venez d'atteindre la limite de points d'arène pour aujourd'hui !"
+
     //// opvp hp
     //LANG_OPVP_HP_CAPTURE_OVERLOOK_H     = 10001,
     //LANG_OPVP_HP_CAPTURE_OVERLOOK_A     = 10002,

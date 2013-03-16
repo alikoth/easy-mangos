@@ -79,7 +79,12 @@ enum WorldTimers
     WUPDATE_EVENTS      = 4,
     WUPDATE_DELETECHARS = 5,
     WUPDATE_AHBOT       = 6,
-    WUPDATE_COUNT       = 7
+
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+	WUPDATE_ARENAPOINTS_LIMIT = 7,
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+
+    WUPDATE_COUNT       = 8
 };
 
 // World RW locking types for mtmaps
@@ -205,6 +210,11 @@ enum eConfigUInt32Values
     CONFIG_UINT32_LFG_MAXKICKS,
     CONFIG_UINT32_MIN_LEVEL_FOR_RAID,
     CONFIG_UINT32_BOT_JOIN_BG,
+
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+	CONFIG_UINT32_MAX_ARENAPOINTS_PER_DAY,
+	/* Limite de points d'arène quotidiens - By MacWarrior */
+
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -378,8 +388,13 @@ enum eConfigBoolValues
     CONFIG_BOOL_LFG_DEBUG_ENABLE,
     CONFIG_BOOL_LFR_EXTEND,
     CONFIG_BOOL_CHECK_GO_IN_PATH,
-    CONFIG_BOOL_VALUE_COUNT,
-    CONFIG_BOOL_ALLOW_HONOR_KILLS_TITLES
+	CONFIG_BOOL_ALLOW_HONOR_KILLS_TITLES,
+
+	/* Points d'arènes en fin de match - By MacWarrior */
+	CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_ENDMATCH,
+	/* Points d'arènes en fin de match - By MacWarrior */
+
+    CONFIG_BOOL_VALUE_COUNT
 };
 
 /// Can be used in SMSG_AUTH_RESPONSE packet
@@ -628,6 +643,11 @@ class World
         void LoadDBVersion();
         char const* GetDBVersion() { return m_DBVersion.c_str(); }
         char const* GetCreatureEventAIVersion() { return m_CreatureEventAIVersion.c_str(); }
+
+		/* Limite de points d'arène quotidiens - By MacWarrior */
+		void UpdateLimiteArenaPoints();
+		void ResetLimiteArenaPoints();
+		/* Limite de points d'arène quotidiens - By MacWarrior */
 
         // World events locking
         typedef ACE_RW_Thread_Mutex               WorldLock;
